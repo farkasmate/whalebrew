@@ -12,12 +12,16 @@ jobs:
   build:
     strategy:
       matrix:
-        os: 
-        - ubuntu-latest
-        - macos-latest
+        os:
+        - darwin
+        - linux
+        arch:
+        - amd64
+        #- arm # FIXME: linux only
+        - arm64
         go-version: [1.15.3]
     name: Build
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
     - name: hello world
       run: echo hello world
@@ -38,14 +42,16 @@ jobs:
     - name: Build
       id: build
       run: |
-        go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o whalebrew-$(uname -s)-$(uname -m) .
-    
+        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o whalebrew-${{ matrix.os }}-${{ matrix.arch }} .
+
     - name: Ensure binary works
-      run: ./whalebrew-$(uname -s)-$(uname -m) version
+      run: |
+        file ./whalebrew-${{ matrix.os }}-${{ matrix.arch }}
+        #./whalebrew-${{ matrix.os }}-${{ matrix.arch }} version # FIXME: MacOS
 
     - uses: actions/upload-artifact@v2
       with:
-        name: whalebrew-${{ matrix.os }}
+        name: whalebrew-${{ matrix.os }}-${{ matrix.arch }}
         path: whalebrew-*
 
     - name: run tests
