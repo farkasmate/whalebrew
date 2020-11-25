@@ -17,9 +17,14 @@ jobs:
         - linux
         arch:
         - amd64
-        #- arm # FIXME: linux only
-        #- arm64
+        - arm
+        - arm64
         go-version: [1.15.3]
+        exclude:
+        - os: darwin # NOTE: darwin-arm is not supported
+          arch: arm
+        - os: darwin # FIXME: darwin-arm64 (Apple Silicon) is planned for Go 1.16 in February 2021
+          arch: arm64
     name: Build
     runs-on: ubuntu-latest
     steps:
