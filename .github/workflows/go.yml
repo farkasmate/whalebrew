@@ -49,20 +49,20 @@ jobs:
           amd64) arch=x86_64 ;;
           *)     arch=${{ matrix.arch }} ;;
         esac
-        echo "::set-output name=whalebrew-${os^}-${arch}"
+        echo "::set-output name=binary_name::whalebrew-${os^}-${arch}"
 
     - name: Build
       id: build
       run: |
-        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o ${{ steps.binary.outputs.name }} .
+        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o ${{ steps.binary.outputs.binary_name }} .
 
     - name: Ensure binary works
-      run: ./${{ steps.binary.outputs.name }} version
+      run: ./${{ steps.binary.outputs.binary_name }} version
       if: ${{ !startsWith(matrix.arch, 'arm') }}
 
     - uses: actions/upload-artifact@v2
       with:
-        name: ${{ steps.binary.outputs.name }}
+        name: ${{ steps.binary.outputs.binary_name }}
         path: whalebrew-*
 
     - name: run tests
