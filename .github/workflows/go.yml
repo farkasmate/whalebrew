@@ -58,9 +58,11 @@ jobs:
       run: |
         GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o ${{ steps.binary.outputs.binary_name }} .
 
-#    - name: Ensure binary works
-#      run: ./${{ steps.binary.outputs.binary_name }} version
-#      if: ${{ !startsWith(matrix.arch, 'arm') }}
+    - name: Ensure binary works
+      run: |
+        docker run --rm --privileged multiarch/qemu-user-static:register --reset
+        file ${{ steps.binary.outputs.binary_name }}
+        ./${{ steps.binary.outputs.binary_name }} version
 
     - uses: actions/upload-artifact@v2
       with:
