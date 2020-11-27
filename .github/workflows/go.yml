@@ -40,18 +40,28 @@ jobs:
         # fetch all tags
         fetch-depth: 0    
 
+    - name: Map binary name
+      id: binary
+      run: |
+        os=${{ matrix.os }}
+        case ${{ matrix.arch }} in
+          amd64) arch=x86_64 ;;
+          *)     arch=${{ matrix.arch }} ;;
+        esac
+        echo "::set-output name=whalebrew-${os^}-${arch}"
+
     - name: Build
       id: build
       run: |
-        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o whalebrew-${{ matrix.os }}-${{ matrix.arch }} .
+        GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o ${{ steps.binary.outputs.name }} .
 
     - name: Ensure binary works
-      run: ./whalebrew-${{ matrix.os }}-${{ matrix.arch }} version
+      run: ./${{ steps.binary.outputs.name }} version
       if: ${{ !startsWith(matrix.arch, 'arm') }}
 
     - uses: actions/upload-artifact@v2
       with:
-        name: whalebrew-${{ matrix.os }}-${{ matrix.arch }}
+        name: ${{ steps.binary.outputs.name }}
         path: whalebrew-*
 
     - name: run tests
