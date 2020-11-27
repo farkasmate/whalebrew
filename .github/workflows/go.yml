@@ -49,7 +49,9 @@ jobs:
           amd64) arch=x86_64 ;;
           *)     arch=${{ matrix.arch }} ;;
         esac
-        echo "::set-output name=binary_name::whalebrew-${os^}-${arch}"
+        binary_name=whalebrew-${os^}-${arch}
+        echo "Binary name: ${binary_name}"
+        echo "::set-output name=binary_name::${binary_name}"
 
     - name: Build
       id: build
