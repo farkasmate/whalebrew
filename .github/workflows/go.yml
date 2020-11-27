@@ -46,9 +46,8 @@ jobs:
         GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -v -ldflags "-X github.com/whalebrew/whalebrew/version.Version=$(git describe --always --tags --dirty)" -o whalebrew-${{ matrix.os }}-${{ matrix.arch }} .
 
     - name: Ensure binary works
-      run: |
-        file ./whalebrew-${{ matrix.os }}-${{ matrix.arch }}
-        #./whalebrew-${{ matrix.os }}-${{ matrix.arch }} version # FIXME: MacOS
+      run: ./whalebrew-${{ matrix.os }}-${{ matrix.arch }} version
+      if: ${{ !startsWith(matrix.arch, 'arm') }}
 
     - uses: actions/upload-artifact@v2
       with:
